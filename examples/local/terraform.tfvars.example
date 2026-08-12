@@ -1,0 +1,15 @@
+# Copy this to terraform.tfvars and adjust if your sibling repos aren't checked out
+# next to ai-infra-terraform, or if you want different ports / a pre-built image.
+#
+#   cp terraform.tfvars.example terraform.tfvars
+
+# rag_repo_path           = "/absolute/path/to/rag-mlops-pipeline"
+# observability_repo_path = "/absolute/path/to/llm-observability-stack"
+
+# rag_service_build_from_source = false
+# rag_service_image             = "ghcr.io/you/rag-service:latest"
+
+# qdrant_port      = 6333
+# rag_service_port = 3000
+# prometheus_port  = 9090
+# grafana_port     = 3001

@@ -1,0 +1,28 @@
+# Terraform working directories (provider plugins, module cache) — never commit
+.terraform/
+
+# Terraform state and its backups — contains resource IDs/attributes, not source
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Local variable overrides / anything with real values instead of the .example
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Plan output files, if ever saved locally
+*.tfplan
+
+# Generated Prometheus config rendered by modules/local-docker (see main.tf)
+modules/local-docker/.generated/
+
+# Editor/OS cruft
+.DS_Store
+*.swp
+
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored — per Terraform convention
+# it is committed so `terraform init` resolves the same provider versions every time.
