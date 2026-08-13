@@ -45,3 +45,20 @@ variable "grafana_port" {
   type    = number
   default = 3001
 }
+
+# Docker Desktop on macOS does not listen on the provider's default
+# unix:///var/run/docker.sock — `terraform apply` fails at the very first
+# resource with "Cannot connect to the Docker daemon" until this is set
+# explicitly. Verified by an actual `terraform apply` run, not just
+# `validate` (which cannot catch this — it never talks to a Docker daemon).
+# Find yours with:
+#   docker context inspect $(docker context show) --format '{{.Endpoints.docker.Host}}'
+# then pass it via terraform.tfvars or -var, e.g.:
+#   docker_host = "unix:///Users/<you>/.docker/run/docker.sock"
+# Leave blank on Linux / Docker Desktop for Windows / anywhere the provider
+# default already resolves correctly.
+variable "docker_host" {
+  description = "Docker daemon socket. Required on macOS Docker Desktop; see comment above for how to find yours."
+  type        = string
+  default     = ""
+}

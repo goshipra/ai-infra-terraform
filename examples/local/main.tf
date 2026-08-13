@@ -23,7 +23,9 @@ terraform {
   }
 }
 
-provider "docker" {}
+provider "docker" {
+  host = var.docker_host != "" ? var.docker_host : null
+}
 
 module "ai_infra" {
   source = "../../modules/local-docker"

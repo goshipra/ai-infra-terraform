@@ -192,9 +192,42 @@ Success! The configuration is valid.
 (`^[0-9A-Za-z_ .:/()#,@\[\]+=&;{}!$*-]*$`). Fixed in `modules/aws/observability.tf`.
 That's the kind of thing `validate` is for — it isn't just a formality.
 
-Only `validate` was run against `modules/aws` (no `plan`/`apply` — see above);
-`modules/local-docker` was `init`'d and `validate`'d exactly the same way, and is
-also `apply`-able end-to-end once the sibling repos are checked out and populated.
+Only `validate` was run against `modules/aws` (no `plan`/`apply` — see above).
+
+`modules/local-docker` has since been `apply`'d for real, end to end, against the
+actual sibling repos — this is the update after doing that:
+
+```
+$ cd examples/local && terraform apply -auto-approve
+...
+Apply complete! Resources: 11 added, 0 changed, 0 destroyed.
+```
+
+`apply` caught a real bug `validate` could never catch, because `validate` never
+talks to a Docker daemon: the provider's default socket
+(`unix:///var/run/docker.sock`) doesn't exist on macOS Docker Desktop, which listens
+on `~/.docker/run/docker.sock` instead. First `apply` failed on the very first
+resource with "Cannot connect to the Docker daemon." Fixed by adding a `docker_host`
+variable (see `terraform.tfvars.example`) instead of hardcoding a path — Linux and
+other Docker Desktop configs may already resolve correctly via the provider default.
+
+With that fixed, the full stack came up and was exercised for real, not just
+inspected:
+- `POST /query` against the live containerized `rag-service` returned a real
+  Ollama-generated answer, correctly grounded in the top-retrieved chunk from a live
+  Qdrant collection populated by `ingest.py`.
+- `GET http://localhost:9090/api/v1/targets` showed the `rag-service` scrape target
+  `up` (previously `down` with nothing to scrape).
+- The real request showed up as `rag_requests_total{status="ok"} 1` in Prometheus,
+  queryable through Grafana's own datasource proxy — confirming the dashboard would
+  render live traffic, not just that its JSON parses.
+
+Known rough edges found during that run, left as-is rather than hidden: the pinned
+`qdrant-client` version in `rag-mlops-pipeline` is newer than the `qdrant/qdrant:v1.11.0`
+image this module pins, which prints a compatibility warning (harmless in this case,
+worth aligning if the gap ever widens); a single CPU-only `llama3.2` generation took
+~31s, which is expected for an unaccelerated 3B model and not something this module
+tries to hide behind a faster default.
 
 ## Assumptions
 

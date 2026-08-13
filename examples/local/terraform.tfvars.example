@@ -13,3 +13,8 @@
 # rag_service_port = 3000
 # prometheus_port  = 9090
 # grafana_port     = 3001
+
+# macOS + Docker Desktop: required, or `apply` fails on the very first resource.
+# Find yours with:
+#   docker context inspect $(docker context show) --format '{{.Endpoints.docker.Host}}'
+# docker_host = "unix:///Users/<you>/.docker/run/docker.sock"
